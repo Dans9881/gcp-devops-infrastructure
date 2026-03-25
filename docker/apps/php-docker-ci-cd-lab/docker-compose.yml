@@ -1,0 +1,46 @@
+services:
+  nginx:
+    image: dans9881/php-docker-ci-cd-lab-nginx:${IMAGE_TAG}
+    container_name: cicd-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - web
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.cicd.rule=Host(`systems.kuyen.online`)"
+      - "traefik.http.routers.cicd.entrypoints=websecure"
+      - "traefik.http.routers.cicd.tls.certresolver=letsencrypt"
+      - "traefik.http.services.cicd.loadbalancer.server.port=80"
+
+  app:
+    image: dans9881/php-docker-ci-cd-lab-php:${IMAGE_TAG}
+    container_name: cicd-php
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8
+    container_name: cicd-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - /srv/databases/mysql:/var/lib/mysql
+    networks:
+      - backend
+
+networks:
+  web:
+    external: true
+  backend:
+    external: true

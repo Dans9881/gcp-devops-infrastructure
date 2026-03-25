@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /certs/danzserver.taila1fa29.ts.net.crt
+      keyFile: /certs/danzserver.taila1fa29.ts.net.key
